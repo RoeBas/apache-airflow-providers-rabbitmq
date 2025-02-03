@@ -1,0 +1,10 @@
+name: "apache-airflow-provider-rabbitmq"
+package-name: "apache-airflow-provider-rabbitmq"
+description: "Airflow provider for RabbitMQ with sync/async support."
+versions:
+  - 0.1.0
+integrations:
+  - integration-name: RabbitMQ
+    external-doc-url: https://www.rabbitmq.com/
+    how-to-guide:
+      - URL: https://github.io/pages/....

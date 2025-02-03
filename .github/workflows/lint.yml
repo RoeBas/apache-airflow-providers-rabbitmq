@@ -1,0 +1,38 @@
+name: Linting
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    name: Run Linters
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: |
+          pip install uv
+          uv install
+
+      - name: Run Black (Code Formatter)
+        run: uv run black --check src/ tests/
+
+      - name: Run isort (Import Sorting)
+        run: uv run isort --check-only src/ tests/
+
+      - name: Run flake8 (Linting)
+        run: uv run flake8 src/ tests/
+
+      - name: Run mypy (Type Checking)
+        run: uv run mypy src/
