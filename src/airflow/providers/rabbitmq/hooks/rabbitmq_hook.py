@@ -1,9 +1,8 @@
-import pika
-import asyncio
 import aio_pika
+import pika
+from aio_pika.abc import AbstractRobustConnection, AbstractChannel
 from pika.adapters.blocking_connection import BlockingConnection
 from pika.channel import Channel
-from aio_pika.abc import AbstractRobustConnection, AbstractChannel
 
 
 class RabbitMQHook:

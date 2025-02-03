@@ -2,9 +2,11 @@ import time
 from typing import Any, Dict, Optional
 from airflow.sensors.base import BaseSensorOperator
 from airflow.utils.decorators import apply_defaults
-from apache_airflow_provider_rabbitmq.hooks.rabbitmq_hook import RabbitMQHook
+
 from pika.adapters.blocking_connection import BlockingChannel, BlockingConnection
 from pika.frame import Method
+
+from airflow.providers.rabbitmq.hooks.rabbitmq_hook import RabbitMQHook
 
 
 class RabbitMQSensor(BaseSensorOperator):

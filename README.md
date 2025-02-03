@@ -97,7 +97,7 @@ with DAG(
 
 ### Prerequisites
 
-- Python 3.10 or later
+- Python 3.12 or later
 - Apache Airflow 2.3 or later
 - RabbitMQ server (local or remote)
 

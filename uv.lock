@@ -217,7 +217,7 @@ wheels = [
 [[package]]
 name = "apache-airflow-provider-rabbitmq"
 version = "0.1.0"
-source = { editable = "." }
+source = { virtual = "." }
 dependencies = [
     { name = "aio-pika" },
     { name = "apache-airflow" },

@@ -1,8 +1,9 @@
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
-from apache_airflow_provider_rabbitmq.hooks.rabbitmq_hook import RabbitMQHook
 import asyncio
 from typing import Any, Dict
+
+from airflow.providers.rabbitmq.hooks.rabbitmq_hook import RabbitMQHook
 
 
 class RabbitMQProducerOperator(BaseOperator):
