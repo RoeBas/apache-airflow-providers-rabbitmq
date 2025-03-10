@@ -1,7 +1,7 @@
 # Apache Airflow Provider for RabbitMQ
 
 [![PyPI version](https://badge.fury.io/py/apache-airflow-provider-rabbitmq.svg)](https://badge.fury.io/py/apache-airflow-provider-rabbitmq)
-[![License](https://img.shields.io/github/license/yourusername/apache-airflow-provider-rabbitmq.svg)](LICENSE)
+[![License](https://img.shields.io/github/license/mustafazidan/apache-airflow-provider-rabbitmq.svg)](LICENSE)
 
 ## Overview
 
@@ -171,4 +171,4 @@ This project is licensed under the [Apache License 2.0](LICENSE).
 
 ## Support
 
-If you encounter any issues, please open an issue on [GitHub](https://github.com/yourusername/apache-airflow-provider-rabbitmq/issues).
+If you encounter any issues, please open an issue on [GitHub](https://github.com/mustafazidan/apache-airflow-provider-rabbitmq/issues).

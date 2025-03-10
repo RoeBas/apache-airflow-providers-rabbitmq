@@ -6,21 +6,44 @@ on:
       - 'v*'
 
 jobs:
-  publish:
+  test-and-publish:
     runs-on: ubuntu-latest
+    permissions:
+      # Required for OIDC publishing to PyPI
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
+
       - name: Install uv
         run: |
           pip install uv
-      - name: Build and publish
-        env:
-          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+
+      - name: Install dependencies
+        run: |
+          uv pip install -e ".[dev]"
+
+      - name: Run tests
+        run: |
+          uv pip install pytest
+          pytest tests/
+
+      - name: Build package
         run: |
           uv build
-          uv publish --username $TWINE_USERNAME --password $TWINE_PASSWORD
+
+      - name: Verify built package
+        run: |
+          uv pip install build
+          python -m build --sdist --wheel --outdir dist/ .
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          verbose: true
+          print-hash: true
