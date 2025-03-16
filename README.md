@@ -128,10 +128,37 @@ Run all tests:
 pytest
 ```
 
+Run unit tests only:
+```bash
+pytest tests/unit/
+```
+
+Run integration tests only:
+```bash
+pytest tests/integration/
+```
+
+Run tests with coverage:
+```bash
+pytest --cov=airflow.providers.rabbitmq
+```
+
+Run tests with coverage and generate HTML report:
+```bash
+pytest --cov=airflow.providers.rabbitmq --cov-report=html
+```
+
+Run a specific test file:
+```bash
+pytest tests/unit/hooks/test_rabbitmq_hook.py
+```
+
 Run a specific test:
 ```bash
-pytest tests/unit/test_rabbitmq_operator.py
+pytest tests/unit/hooks/test_rabbitmq_hook.py::TestRabbitMQHook::test_init
 ```
+
+For more information about testing, see the [tests README](tests/README.md).
 
 ### Linting and Formatting
 

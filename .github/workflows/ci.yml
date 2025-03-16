@@ -17,7 +17,7 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies with uv
         run: |
-          pip install uv
           uv install
+          uv install --extras development
       - name: Run tests
         run: uv run pytest tests/
