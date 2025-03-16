@@ -1,7 +1,5 @@
-import time
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Sequence
 from airflow.sensors.base import BaseSensorOperator
-from airflow.utils.decorators import apply_defaults
 
 from pika.adapters.blocking_connection import BlockingChannel, BlockingConnection
 from pika.frame import Method
@@ -16,15 +14,38 @@ class RabbitMQSensor(BaseSensorOperator):
     This sensor periodically checks a specified RabbitMQ queue and triggers
     downstream tasks once a message is detected.
 
-    :param connection_uri: The RabbitMQ connection URI (e.g., "amqp://user:password@host:port/vhost").
     :param queue: The name of the RabbitMQ queue to monitor.
+    :param connection_uri: The RabbitMQ connection URI (e.g., "amqp://user:password@host:port/vhost").
+                          If not provided, the connection URI will be retrieved from the Airflow connection.
+    :param conn_id: The Airflow connection id to use. Default is "rabbitmq_default".
+    :param auto_ack: Whether to automatically acknowledge the message. Default is True.
     """
 
-    @apply_defaults
-    def __init__(self, connection_uri: str, queue: str, **kwargs: Dict[str, Any]) -> None:
+    template_fields: Sequence[str] = ('queue',)
+    ui_color = '#f0ede4'
+
+    def __init__(
+        self, 
+        queue: str, 
+        connection_uri: Optional[str] = None,
+        conn_id: str = 'rabbitmq_default',
+        auto_ack: bool = True,
+        **kwargs: Any
+    ) -> None:
+        """
+        Initialize the RabbitMQSensor.
+
+        :param queue: The name of the RabbitMQ queue to monitor.
+        :param connection_uri: The RabbitMQ connection URI (e.g., "amqp://user:password@host:port/vhost").
+                              If not provided, the connection URI will be retrieved from the Airflow connection.
+        :param conn_id: The Airflow connection id to use. Default is "rabbitmq_default".
+        :param auto_ack: Whether to automatically acknowledge the message. Default is True.
+        """
         super().__init__(**kwargs)
-        self.connection_uri: str = connection_uri
+        self.connection_uri: Optional[str] = connection_uri
+        self.conn_id: str = conn_id
         self.queue: str = queue
+        self.auto_ack: bool = auto_ack
 
     def poke(self, context: Dict[str, Any]) -> bool:
         """
@@ -33,25 +54,20 @@ class RabbitMQSensor(BaseSensorOperator):
         :param context: Airflow's execution context dictionary.
         :return: True if a message is found; otherwise, False.
         """
-        hook = RabbitMQHook(self.connection_uri)
+        hook = RabbitMQHook(connection_uri=self.connection_uri, conn_id=self.conn_id)
         try:
-            conn: BlockingConnection = hook.get_sync_connection()
-            channel: BlockingChannel = conn.channel()
+            with hook.get_sync_connection_cm() as conn:
+                channel: BlockingChannel = conn.channel()
 
-            # Attempt to retrieve a message without consuming it
-            method_frame: Optional[Method]
-            method_frame, _, body = channel.basic_get(self.queue, auto_ack=True)
+                # Attempt to retrieve a message without consuming it
+                method_frame: Optional[Method]
+                method_frame, _, body = channel.basic_get(self.queue, auto_ack=self.auto_ack)
 
-            # Close connection after checking the queue
-            conn.close()
-
-            if method_frame:
-                self.log.info("Received message: %s", body)
-                return True
+                if method_frame:
+                    self.log.info("Received message: %s", body)
+                    return True
 
         except Exception as e:
             self.log.error("Error during RabbitMQ poke: %s", e)
 
-        # Avoid excessive polling
-        time.sleep(1)
         return False
