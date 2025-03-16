@@ -21,9 +21,10 @@ jobs:
           python-version: '3.12'
 
       - name: Install uv
-        run: |
-          pip install uv
-          uv install
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install the project
+        run: uv sync --all-extras --dev
 
       - name: Run Black (Code Formatter)
         run: uv run black --check src/ tests/
