@@ -1,13 +1,13 @@
+import logging
+from contextlib import contextmanager
+from typing import Any, Generator, Optional
+
 import aio_pika
 import pika
-from aio_pika.abc import AbstractRobustConnection, AbstractChannel
+from aio_pika.abc import AbstractChannel, AbstractRobustConnection
+from airflow.hooks.base import BaseHook
 from pika.adapters.blocking_connection import BlockingConnection
 from pika.channel import Channel
-from contextlib import contextmanager
-from typing import Generator, Optional, Any
-import logging
-
-from airflow.hooks.base import BaseHook
 
 
 class RabbitMQHook(BaseHook):
@@ -21,12 +21,15 @@ class RabbitMQHook(BaseHook):
                           If not provided, it will be retrieved from the Airflow connection.
     :param conn_id: The Airflow connection id to use. Default is "rabbitmq_default".
     """
-    conn_name_attr = 'conn_id'
-    default_conn_name = 'rabbitmq_default'
-    conn_type = 'rabbitmq'
-    hook_name = 'RabbitMQ'
 
-    def __init__(self, connection_uri: Optional[str] = None, conn_id: str = default_conn_name) -> None:
+    conn_name_attr = "conn_id"
+    default_conn_name = "rabbitmq_default"
+    conn_type = "rabbitmq"
+    hook_name = "RabbitMQ"
+
+    def __init__(
+        self, connection_uri: Optional[str] = None, conn_id: str = default_conn_name
+    ) -> None:
         """
         Initialize RabbitMQ connection settings.
 
@@ -62,8 +65,8 @@ class RabbitMQHook(BaseHook):
                 vhost = f"/{vhost}"
 
             return f"amqp://{user_pass}{conn.host}:{conn.port}{vhost}"
-        elif conn.extra_dejson.get('connection_uri'):
-            return conn.extra_dejson.get('connection_uri')
+        elif conn.extra_dejson.get("connection_uri"):
+            return conn.extra_dejson.get("connection_uri")
         else:
             raise ValueError(
                 f"No valid connection URI found in connection {self.conn_id}. "
@@ -137,17 +140,21 @@ class RabbitMQHook(BaseHook):
                 channel: Channel = conn.channel()
 
                 self.log.info(
-                    "Publishing message to exchange '%s' with routing key '%s'", 
-                    exchange, 
-                    routing_key
+                    "Publishing message to exchange '%s' with routing key '%s'",
+                    exchange,
+                    routing_key,
                 )
-                channel.basic_publish(exchange=exchange, routing_key=routing_key, body=message)
+                channel.basic_publish(
+                    exchange=exchange, routing_key=routing_key, body=message
+                )
                 self.log.info("Message published successfully")
             except Exception as e:
                 self.log.error("Error publishing message: %s", str(e))
                 raise
 
-    async def publish_async(self, message: str, exchange: str, routing_key: str) -> None:
+    async def publish_async(
+        self, message: str, exchange: str, routing_key: str
+    ) -> None:
         """
         Publish a message to RabbitMQ asynchronously.
 
@@ -164,9 +171,9 @@ class RabbitMQHook(BaseHook):
             channel: AbstractChannel = await connection.channel()
 
             self.log.info(
-                "Publishing message asynchronously to exchange '%s' with routing key '%s'", 
-                exchange, 
-                routing_key
+                "Publishing message asynchronously to exchange '%s' with routing key '%s'",
+                exchange,
+                routing_key,
             )
             await channel.default_exchange.publish(
                 aio_pika.Message(body=message.encode()), routing_key=routing_key

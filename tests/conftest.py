@@ -1,5 +1,6 @@
-import pytest
 from unittest import mock
+
+import pytest
 
 
 @pytest.fixture
@@ -33,5 +34,7 @@ def mock_async_rabbitmq_channel():
 @pytest.fixture
 def mock_rabbitmq_hook():
     """Fixture to mock the RabbitMQHook"""
-    with mock.patch("airflow.providers.rabbitmq.hooks.rabbitmq_hook.RabbitMQHook") as mock_hook:
+    with mock.patch(
+        "airflow.providers.rabbitmq.hooks.rabbitmq_hook.RabbitMQHook"
+    ) as mock_hook:
         yield mock_hook

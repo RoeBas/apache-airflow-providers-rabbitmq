@@ -1,6 +1,7 @@
-from airflow.models import BaseOperator
 import asyncio
 from typing import Any, Dict, Optional, Sequence
+
+from airflow.models import BaseOperator
 
 from airflow.providers.rabbitmq.hooks.rabbitmq_hook import RabbitMQHook
 
@@ -20,18 +21,18 @@ class RabbitMQProducerOperator(BaseOperator):
     :param use_async: Flag to determine whether to use async messaging. Defaults to False.
     """
 
-    template_fields: Sequence[str] = ('message', 'exchange', 'routing_key')
-    ui_color = '#f0e4d5'
+    template_fields: Sequence[str] = ("message", "exchange", "routing_key")
+    ui_color = "#f0e4d5"
 
     def __init__(
-            self,
-            message: str,
-            exchange: str,
-            routing_key: str,
-            connection_uri: Optional[str] = None,
-            conn_id: str = 'rabbitmq_default',
-            use_async: bool = False,
-            **kwargs: Any
+        self,
+        message: str,
+        exchange: str,
+        routing_key: str,
+        connection_uri: Optional[str] = None,
+        conn_id: str = "rabbitmq_default",
+        use_async: bool = False,
+        **kwargs: Any,
     ) -> None:
         """
         Initialize the RabbitMQProducerOperator.
@@ -65,7 +66,9 @@ class RabbitMQProducerOperator(BaseOperator):
         try:
             if self.use_async:
                 self.log.info("Publishing message asynchronously to RabbitMQ")
-                asyncio.run(hook.publish_async(self.message, self.exchange, self.routing_key))
+                asyncio.run(
+                    hook.publish_async(self.message, self.exchange, self.routing_key)
+                )
             else:
                 self.log.info("Publishing message synchronously to RabbitMQ")
                 hook.publish_sync(self.message, self.exchange, self.routing_key)

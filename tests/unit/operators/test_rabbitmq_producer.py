@@ -1,17 +1,21 @@
-import unittest
-from unittest import mock
-from typing import Dict, Any
-
 import asyncio
+from typing import Any, Dict
+from unittest import mock
+
+import pytest
 from airflow.models import BaseOperator
+
 from airflow.providers.rabbitmq.hooks.rabbitmq_hook import RabbitMQHook
-from airflow.providers.rabbitmq.operators.rabbitmq_producer import RabbitMQProducerOperator
+from airflow.providers.rabbitmq.operators.rabbitmq_producer import (
+    RabbitMQProducerOperator,
+)
 
 
-class TestRabbitMQProducerOperator(unittest.TestCase):
+class TestRabbitMQProducerOperator:
     """Tests for RabbitMQProducerOperator"""
 
-    def setUp(self):
+    @pytest.fixture(autouse=True)
+    def setup_method(self):
         """Set up test fixtures"""
         self.connection_uri = "amqp://guest:guest@localhost:5672/"
         self.conn_id = "rabbitmq_default"
@@ -20,7 +24,7 @@ class TestRabbitMQProducerOperator(unittest.TestCase):
         self.routing_key = "test_routing_key"
         self.task_id = "test_task_id"
 
-    def test_init(self):
+    async def test_init(self):
         """Test operator initialization"""
         # Test with connection_uri
         operator1 = RabbitMQProducerOperator(
@@ -32,13 +36,13 @@ class TestRabbitMQProducerOperator(unittest.TestCase):
             use_async=False,
         )
 
-        self.assertEqual(operator1.connection_uri, self.connection_uri)
-        self.assertEqual(operator1.conn_id, self.conn_id)
-        self.assertEqual(operator1.message, self.message)
-        self.assertEqual(operator1.exchange, self.exchange)
-        self.assertEqual(operator1.routing_key, self.routing_key)
-        self.assertEqual(operator1.use_async, False)
-        self.assertIsInstance(operator1, BaseOperator)
+        assert operator1.connection_uri == self.connection_uri
+        assert operator1.conn_id == self.conn_id
+        assert operator1.message == self.message
+        assert operator1.exchange == self.exchange
+        assert operator1.routing_key == self.routing_key
+        assert operator1.use_async == False
+        assert isinstance(operator1, BaseOperator)
 
         # Test with conn_id
         operator2 = RabbitMQProducerOperator(
@@ -50,10 +54,10 @@ class TestRabbitMQProducerOperator(unittest.TestCase):
             use_async=False,
         )
 
-        self.assertIsNone(operator2.connection_uri)
-        self.assertEqual(operator2.conn_id, "test_conn")
+        assert operator2.connection_uri is None
+        assert operator2.conn_id == "test_conn"
 
-    def test_init_with_async(self):
+    async def test_init_with_async(self):
         """Test operator initialization with async mode"""
         operator = RabbitMQProducerOperator(
             task_id=self.task_id,
@@ -64,17 +68,17 @@ class TestRabbitMQProducerOperator(unittest.TestCase):
             use_async=True,
         )
 
-        self.assertEqual(operator.use_async, True)
+        assert operator.use_async == True
 
-    def test_template_fields(self):
+    async def test_template_fields(self):
         """Test template fields"""
-        self.assertIn('message', RabbitMQProducerOperator.template_fields)
-        self.assertIn('exchange', RabbitMQProducerOperator.template_fields)
-        self.assertIn('routing_key', RabbitMQProducerOperator.template_fields)
+        assert "message" in RabbitMQProducerOperator.template_fields
+        assert "exchange" in RabbitMQProducerOperator.template_fields
+        assert "routing_key" in RabbitMQProducerOperator.template_fields
 
     @mock.patch.object(RabbitMQHook, "publish_sync")
     @mock.patch.object(RabbitMQHook, "__init__")
-    def test_execute_sync(self, mock_hook_init, mock_publish_sync):
+    async def test_execute_sync(self, mock_hook_init, mock_publish_sync):
         """Test execute method with synchronous mode"""
         # Setup mocks
         mock_hook_init.return_value = None
@@ -94,12 +98,16 @@ class TestRabbitMQProducerOperator(unittest.TestCase):
         operator.execute(context)
 
         # Assertions
-        mock_hook_init.assert_called_once_with(connection_uri=self.connection_uri, conn_id=self.conn_id)
-        mock_publish_sync.assert_called_once_with(self.message, self.exchange, self.routing_key)
+        mock_hook_init.assert_called_once_with(
+            connection_uri=self.connection_uri, conn_id=self.conn_id
+        )
+        mock_publish_sync.assert_called_once_with(
+            self.message, self.exchange, self.routing_key
+        )
 
     @mock.patch.object(asyncio, "run")
     @mock.patch.object(RabbitMQHook, "__init__")
-    def test_execute_async(self, mock_hook_init, mock_asyncio_run):
+    async def test_execute_async(self, mock_hook_init, mock_asyncio_run):
         """Test execute method with asynchronous mode"""
         # Setup mocks
         mock_hook_init.return_value = None
@@ -119,12 +127,14 @@ class TestRabbitMQProducerOperator(unittest.TestCase):
         operator.execute(context)
 
         # Assertions
-        mock_hook_init.assert_called_once_with(connection_uri=self.connection_uri, conn_id=self.conn_id)
+        mock_hook_init.assert_called_once_with(
+            connection_uri=self.connection_uri, conn_id=self.conn_id
+        )
         mock_asyncio_run.assert_called_once()
 
     @mock.patch.object(RabbitMQHook, "publish_sync")
     @mock.patch.object(RabbitMQHook, "__init__")
-    def test_execute_with_error(self, mock_hook_init, mock_publish_sync):
+    async def test_execute_with_error(self, mock_hook_init, mock_publish_sync):
         """Test execute method with error"""
         # Setup mocks
         mock_hook_init.return_value = None
@@ -142,13 +152,13 @@ class TestRabbitMQProducerOperator(unittest.TestCase):
 
         # Call execute
         context: Dict[str, Any] = {}
-        with self.assertRaises(Exception):
+        with pytest.raises(Exception):
             operator.execute(context)
 
         # Assertions
-        mock_hook_init.assert_called_once_with(connection_uri=self.connection_uri, conn_id=self.conn_id)
-        mock_publish_sync.assert_called_once_with(self.message, self.exchange, self.routing_key)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        mock_hook_init.assert_called_once_with(
+            connection_uri=self.connection_uri, conn_id=self.conn_id
+        )
+        mock_publish_sync.assert_called_once_with(
+            self.message, self.exchange, self.routing_key
+        )

@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional, Sequence
-from airflow.sensors.base import BaseSensorOperator
 
+from airflow.sensors.base import BaseSensorOperator
 from pika.adapters.blocking_connection import BlockingChannel, BlockingConnection
 from pika.frame import Method
 
@@ -21,16 +21,16 @@ class RabbitMQSensor(BaseSensorOperator):
     :param auto_ack: Whether to automatically acknowledge the message. Default is True.
     """
 
-    template_fields: Sequence[str] = ('queue',)
-    ui_color = '#f0ede4'
+    template_fields: Sequence[str] = ("queue",)
+    ui_color = "#f0ede4"
 
     def __init__(
-        self, 
-        queue: str, 
+        self,
+        queue: str,
         connection_uri: Optional[str] = None,
-        conn_id: str = 'rabbitmq_default',
+        conn_id: str = "rabbitmq_default",
         auto_ack: bool = True,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> None:
         """
         Initialize the RabbitMQSensor.
@@ -61,7 +61,9 @@ class RabbitMQSensor(BaseSensorOperator):
 
                 # Attempt to retrieve a message without consuming it
                 method_frame: Optional[Method]
-                method_frame, _, body = channel.basic_get(self.queue, auto_ack=self.auto_ack)
+                method_frame, _, body = channel.basic_get(
+                    self.queue, auto_ack=self.auto_ack
+                )
 
                 if method_frame:
                     self.log.info("Received message: %s", body)

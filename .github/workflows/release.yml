@@ -26,6 +26,12 @@ jobs:
       - name: Install the project
         run: uv sync --all-extras --dev
 
+      - name: Run unit tests
+        run: uv run pytest tests/unit
+
+      - name: Run integration tests
+        run: uv run pytest tests/integration
+
       - name: Build package
         run: uv build
 

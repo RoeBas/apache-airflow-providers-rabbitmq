@@ -1,41 +1,42 @@
-import unittest
+from contextlib import asynccontextmanager, contextmanager
 from unittest import mock
 
 import aio_pika
 import pika
+import pytest
 from pika.adapters.blocking_connection import BlockingConnection
-from contextlib import contextmanager
 
 from airflow.providers.rabbitmq.hooks.rabbitmq_hook import RabbitMQHook
 
 
-class TestRabbitMQHook(unittest.TestCase):
+class TestRabbitMQHook:
     """Tests for RabbitMQHook"""
 
-    def setUp(self):
+    @pytest.fixture(autouse=True)
+    def setup_method(self):
         """Set up test fixtures"""
         self.connection_uri = "amqp://guest:guest@localhost:5672/"
         self.conn_id = "rabbitmq_default"
         self.hook = RabbitMQHook(connection_uri=self.connection_uri)
 
-    def test_init(self):
+    async def test_init(self):
         """Test hook initialization"""
         # Test with connection_uri
         hook1 = RabbitMQHook(connection_uri=self.connection_uri)
-        self.assertEqual(hook1._connection_uri, self.connection_uri)
-        self.assertEqual(hook1.conn_id, "rabbitmq_default")
+        assert hook1._connection_uri == self.connection_uri
+        assert hook1.conn_id == "rabbitmq_default"
 
         # Test with conn_id
         hook2 = RabbitMQHook(conn_id="test_conn")
-        self.assertIsNone(hook2._connection_uri)
-        self.assertEqual(hook2.conn_id, "test_conn")
+        assert hook2._connection_uri is None
+        assert hook2.conn_id == "test_conn"
 
     @mock.patch("airflow.hooks.base.BaseHook.get_connection")
-    def test_connection_uri_property(self, mock_get_connection):
+    async def test_connection_uri_property(self, mock_get_connection):
         """Test connection_uri property"""
         # Test with connection_uri provided
         hook1 = RabbitMQHook(connection_uri=self.connection_uri)
-        self.assertEqual(hook1.connection_uri, self.connection_uri)
+        assert hook1.connection_uri == self.connection_uri
         mock_get_connection.assert_not_called()
 
         # Test with host/port/login/password
@@ -49,7 +50,7 @@ class TestRabbitMQHook(unittest.TestCase):
         mock_get_connection.return_value = mock_conn
 
         hook2 = RabbitMQHook(conn_id="test_conn")
-        self.assertEqual(hook2.connection_uri, "amqp://guest:guest@localhost:5672/vhost")
+        assert hook2.connection_uri == "amqp://guest:guest@localhost:5672/vhost"
         mock_get_connection.assert_called_once_with("test_conn")
 
         # Test with connection_uri in extra
@@ -60,11 +61,13 @@ class TestRabbitMQHook(unittest.TestCase):
         mock_get_connection.return_value = mock_conn
 
         hook3 = RabbitMQHook(conn_id="test_conn2")
-        self.assertEqual(hook3.connection_uri, self.connection_uri)
+        assert hook3.connection_uri == self.connection_uri
 
     @mock.patch("pika.BlockingConnection")
     @mock.patch("pika.URLParameters")
-    def test_get_sync_connection(self, mock_url_parameters, mock_blocking_connection):
+    async def test_get_sync_connection(
+        self, mock_url_parameters, mock_blocking_connection
+    ):
         """Test get_sync_connection method"""
         # Setup mocks
         mock_url_parameters.return_value = "mocked_params"
@@ -77,11 +80,13 @@ class TestRabbitMQHook(unittest.TestCase):
         # Assertions
         mock_url_parameters.assert_called_once_with(self.connection_uri)
         mock_blocking_connection.assert_called_once_with("mocked_params")
-        self.assertEqual(result, mock_connection)
+        assert result == mock_connection
 
     @mock.patch("pika.BlockingConnection")
     @mock.patch("pika.URLParameters")
-    def test_get_sync_connection_cm(self, mock_url_parameters, mock_blocking_connection):
+    async def test_get_sync_connection_cm(
+        self, mock_url_parameters, mock_blocking_connection
+    ):
         """Test get_sync_connection_cm method"""
         # Setup mocks
         mock_url_parameters.return_value = "mocked_params"
@@ -91,7 +96,7 @@ class TestRabbitMQHook(unittest.TestCase):
 
         # Call the method
         with self.hook.get_sync_connection_cm() as conn:
-            self.assertEqual(conn, mock_connection)
+            assert conn == mock_connection
 
         # Assertions
         mock_url_parameters.assert_called_once_with(self.connection_uri)
@@ -110,10 +115,10 @@ class TestRabbitMQHook(unittest.TestCase):
 
         # Assertions
         mock_connect_robust.assert_called_once_with(self.connection_uri)
-        self.assertEqual(result, mock_connection)
+        assert result == mock_connection
 
     @mock.patch.object(RabbitMQHook, "get_sync_connection_cm")
-    def test_publish_sync(self, mock_get_sync_connection_cm):
+    async def test_publish_sync(self, mock_get_sync_connection_cm):
         """Test publish_sync method"""
         # Setup mocks
         mock_connection = mock.MagicMock(spec=BlockingConnection)
@@ -170,7 +175,3 @@ class TestRabbitMQHook(unittest.TestCase):
         mock_connection.channel.assert_called_once()
         mock_exchange.publish.assert_called_once()
         mock_connection.close.assert_called_once()
-
-
-if __name__ == "__main__":
-    unittest.main()
