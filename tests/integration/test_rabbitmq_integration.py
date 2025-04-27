@@ -21,7 +21,6 @@ class TestRabbitMQIntegration(unittest.TestCase):
         """Start a RabbitMQ container for the test class"""
         with RabbitMqContainer("rabbitmq:4") as container:
             # Allow RabbitMQ to initialize
-            time.sleep(5)
             params = container.get_connection_params()
             self.connection_uri = f"amqp://{params.DEFAULT_USERNAME}:{params.DEFAULT_PASSWORD}@{params._host}:{params._port}"
             self.exchange = ""
