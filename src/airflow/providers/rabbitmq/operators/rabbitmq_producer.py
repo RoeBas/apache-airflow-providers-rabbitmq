@@ -2,6 +2,7 @@ import asyncio
 from typing import Any, Dict, Optional, Sequence
 
 from airflow.models import BaseOperator
+from airflow.utils.context import Context
 
 from airflow.providers.rabbitmq.hooks.rabbitmq_hook import RabbitMQHook
 
@@ -53,7 +54,7 @@ class RabbitMQProducerOperator(BaseOperator):
         self.routing_key: str = routing_key
         self.use_async: bool = use_async
 
-    def execute(self, context: Dict[str, Any]) -> None:
+    def execute(self, context: Context) -> Any:
         """
         Executes the operator by publishing a message to RabbitMQ.
 

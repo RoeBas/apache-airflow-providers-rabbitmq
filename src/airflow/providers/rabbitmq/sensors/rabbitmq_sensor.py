@@ -1,6 +1,7 @@
 from typing import Any, Dict, Optional, Sequence
 
-from airflow.sensors.base import BaseSensorOperator
+from airflow.sensors.base import BaseSensorOperator, PokeReturnValue
+from airflow.utils.context import Context
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.frame import Method
 
@@ -47,7 +48,7 @@ class RabbitMQSensor(BaseSensorOperator):
         self.queue: str = queue
         self.auto_ack: bool = auto_ack
 
-    def poke(self, context: Dict[str, Any]) -> bool:
+    def poke(self, context: Context) -> bool | PokeReturnValue:
         """
         Checks the RabbitMQ queue for new messages.
 

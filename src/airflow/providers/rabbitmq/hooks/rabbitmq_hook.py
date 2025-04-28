@@ -41,7 +41,7 @@ class RabbitMQHook(BaseHook):
         self._connection_uri: Optional[str] = connection_uri
 
     @property
-    def connection_uri(self) -> str:
+    def connection_uri(self) -> str | None:
         """
         Get the RabbitMQ connection URI.
 
@@ -65,10 +65,7 @@ class RabbitMQHook(BaseHook):
 
             return f"amqp://{user_pass}{conn.host}:{conn.port}{vhost}"
         elif conn.extra_dejson.get("connection_uri"):
-            uri = conn.extra_dejson.get("connection_uri")
-            if uri is not None:
-                return uri
-            # If we get here, uri was None, so fall through to the error case
+            return conn.extra_dejson.get("connection_uri")
         else:
             raise ValueError(
                 f"No valid connection URI found in connection {self.conn_id}. "
