@@ -4,6 +4,7 @@ from typing import Any, Dict
 import pika
 import pytest
 from testcontainers.rabbitmq import RabbitMqContainer
+
 from airflow.providers.rabbitmq.operators.rabbitmq_producer import (
     RabbitMQProducerOperator,
 )
