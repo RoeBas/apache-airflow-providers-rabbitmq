@@ -1,5 +1,5 @@
-from contextlib import asynccontextmanager, contextmanager
-from typing import Any, Dict, Optional
+from contextlib import contextmanager
+from typing import Any, Dict
 from unittest import mock
 
 import pytest
@@ -34,7 +34,7 @@ class TestRabbitMQSensor:
         assert sensor1.connection_uri == self.connection_uri
         assert sensor1.conn_id == self.conn_id
         assert sensor1.queue == self.queue
-        assert sensor1.auto_ack == True
+        assert sensor1.auto_ack is True
         assert isinstance(sensor1, BaseSensorOperator)
 
         # Test with conn_id
@@ -47,7 +47,7 @@ class TestRabbitMQSensor:
 
         assert sensor2.connection_uri is None
         assert sensor2.conn_id == "test_conn"
-        assert sensor2.auto_ack == False
+        assert sensor2.auto_ack is False
 
     async def test_template_fields(self):
         """Test template fields"""
@@ -92,7 +92,7 @@ class TestRabbitMQSensor:
         mock_get_sync_connection_cm.assert_called_once()
         mock_connection.channel.assert_called_once()
         mock_channel.basic_get.assert_called_once_with(self.queue, auto_ack=True)
-        assert result == True
+        assert result is True
 
     @mock.patch.object(RabbitMQHook, "get_sync_connection_cm")
     @mock.patch.object(RabbitMQHook, "__init__")
@@ -134,7 +134,7 @@ class TestRabbitMQSensor:
         mock_get_sync_connection_cm.assert_called_once()
         mock_connection.channel.assert_called_once()
         mock_channel.basic_get.assert_called_once_with(self.queue, auto_ack=False)
-        assert result == False
+        assert result is False
 
     @mock.patch.object(RabbitMQHook, "get_sync_connection_cm")
     @mock.patch.object(RabbitMQHook, "__init__")
@@ -162,4 +162,4 @@ class TestRabbitMQSensor:
             connection_uri=self.connection_uri, conn_id=self.conn_id
         )
         mock_get_sync_connection_cm.assert_called_once()
-        assert result == False
+        assert result is False

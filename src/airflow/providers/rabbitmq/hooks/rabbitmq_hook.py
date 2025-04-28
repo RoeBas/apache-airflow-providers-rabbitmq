@@ -1,6 +1,5 @@
-import logging
 from contextlib import contextmanager
-from typing import Any, Generator, Optional
+from typing import Generator, Optional
 
 import aio_pika
 import pika
@@ -66,7 +65,10 @@ class RabbitMQHook(BaseHook):
 
             return f"amqp://{user_pass}{conn.host}:{conn.port}{vhost}"
         elif conn.extra_dejson.get("connection_uri"):
-            return conn.extra_dejson.get("connection_uri")
+            uri = conn.extra_dejson.get("connection_uri")
+            if uri is not None:
+                return uri
+            # If we get here, uri was None, so fall through to the error case
         else:
             raise ValueError(
                 f"No valid connection URI found in connection {self.conn_id}. "

@@ -50,3 +50,14 @@ profile = "black"
 
 [tool.mypy]
 strict = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+# Ignore missing library stubs
+[[tool.mypy.overrides]]
+module = [
+    "pika.*",
+    "aio_pika.*",
+    "airflow.*",
+]
+ignore_missing_imports = true

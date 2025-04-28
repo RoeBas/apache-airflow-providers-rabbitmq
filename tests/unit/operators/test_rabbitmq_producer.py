@@ -41,7 +41,7 @@ class TestRabbitMQProducerOperator:
         assert operator1.message == self.message
         assert operator1.exchange == self.exchange
         assert operator1.routing_key == self.routing_key
-        assert operator1.use_async == False
+        assert operator1.use_async is False
         assert isinstance(operator1, BaseOperator)
 
         # Test with conn_id
@@ -68,7 +68,7 @@ class TestRabbitMQProducerOperator:
             use_async=True,
         )
 
-        assert operator.use_async == True
+        assert operator.use_async is True
 
     async def test_template_fields(self):
         """Test template fields"""

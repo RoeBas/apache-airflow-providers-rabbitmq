@@ -1,4 +1,4 @@
-from contextlib import asynccontextmanager, contextmanager
+from contextlib import contextmanager
 from unittest import mock
 
 import aio_pika

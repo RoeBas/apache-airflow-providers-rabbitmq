@@ -1,7 +1,7 @@
 from typing import Any, Dict, Optional, Sequence
 
 from airflow.sensors.base import BaseSensorOperator
-from pika.adapters.blocking_connection import BlockingChannel, BlockingConnection
+from pika.adapters.blocking_connection import BlockingChannel
 from pika.frame import Method
 
 from airflow.providers.rabbitmq.hooks.rabbitmq_hook import RabbitMQHook
