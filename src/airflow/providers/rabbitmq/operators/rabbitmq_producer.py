@@ -2,8 +2,9 @@ import asyncio
 from typing import Any, Optional, Sequence
 
 from airflow.models import BaseOperator
-from airflow.providers.rabbitmq.hooks.rabbitmq_hook import RabbitMQHook
 from airflow.utils.context import Context
+
+from airflow.providers.rabbitmq.hooks.rabbitmq_hook import RabbitMQHook
 
 
 class RabbitMQProducerOperator(BaseOperator):

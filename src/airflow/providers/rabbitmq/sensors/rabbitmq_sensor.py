@@ -1,10 +1,11 @@
 from typing import Any, Optional, Sequence
 
-from airflow.providers.rabbitmq.hooks.rabbitmq_hook import RabbitMQHook
 from airflow.sensors.base import BaseSensorOperator, PokeReturnValue
 from airflow.utils.context import Context
 from pika.adapters.blocking_connection import BlockingChannel
 from pika.frame import Method
+
+from airflow.providers.rabbitmq.hooks.rabbitmq_hook import RabbitMQHook
 
 
 class RabbitMQSensor(BaseSensorOperator):
